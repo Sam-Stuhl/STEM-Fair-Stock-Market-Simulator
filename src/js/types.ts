@@ -1,16 +1,15 @@
 interface Candle {
     open: number;
-    high: number | null;
-    close: number | null;
-    low: number | null;
-    openTime: number;
-    closeTime: number | null;
+    high: number;
+    close: number;
+    low: number;
+    date: string;
     isInEvent: boolean; // This would be true if the candle is a part of a predetermined event. Not randomized
 }
 
 interface PortfolioSnapshot {
     id: number;
-    timestamp: number;
+    timestamp: string;
     transactionType: string;
     stockPrice: number;
     shareQuantity: number;
@@ -28,8 +27,8 @@ interface PortfolioData {
 
 interface Session {
     id: number;
-    startTime: number;
-    endTime: number | null;
+    startTime: string;
+    endTime: string | null;
     isRealSession: boolean; // False if test
     candleData: Candle[];
     portfolioData: PortfolioData;

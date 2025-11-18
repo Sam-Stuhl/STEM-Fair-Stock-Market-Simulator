@@ -29,9 +29,16 @@ export function recordBuy(numShares, sharesPrice) {
     // Save the old portfolio snapshot to history
     state.currentSession.portfolioData.statesInBetween.push(state.currentPortfolioState);
     // Create new portfolio state after the transaction
+    let now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth();
+    let day = now.getDay();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
     state.currentPortfolioState = {
         id: 0,
-        timestamp: Date.now(),
+        timestamp: `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`,
         transactionType: "buy",
         stockPrice: state.currentPrice,
         shareQuantity: numShares,
@@ -51,9 +58,16 @@ export function recordSell(numShares, sharesPrice) {
     // Save the old portfolio snapshot to history
     state.currentSession.portfolioData.statesInBetween.push(state.currentPortfolioState);
     // Create new portfolio state after the transaction
+    let now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth();
+    let day = now.getDay();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
     state.currentPortfolioState = {
         id: 0,
-        timestamp: Date.now(),
+        timestamp: `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`,
         transactionType: "sell",
         stockPrice: state.currentPrice,
         shareQuantity: numShares,
@@ -65,9 +79,16 @@ export function recordSell(numShares, sharesPrice) {
 // --- Session ---
 export function initializeSession(isTest) {
     // Create new Session Object 
+    let now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth();
+    let day = now.getDay();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
     let startingPortfolio = {
         id: 0,
-        timestamp: Date.now(),
+        timestamp: `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`,
         transactionType: "start",
         stockPrice: 0,
         shareQuantity: 0,
@@ -77,7 +98,7 @@ export function initializeSession(isTest) {
     };
     let session = {
         id: 0, // temporary
-        startTime: Date.now(),
+        startTime: `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`,
         endTime: null,
         isRealSession: !isTest,
         candleData: [],
