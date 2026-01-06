@@ -55,6 +55,7 @@ class GeometricBrownianMotionAssetSimulator:
         mu,
         sigma,
         pareto_shape,
+        points_per_candle,
         symbol = ""
     ):
         self.start_date = start_date
@@ -65,6 +66,7 @@ class GeometricBrownianMotionAssetSimulator:
         self.mu = mu
         self.sigma = sigma
         self.pareto_shape = pareto_shape
+        self.points_per_candle = points_per_candle
         self.symbol = symbol
         
     def __call__(self):
@@ -154,12 +156,12 @@ class GeometricBrownianMotionAssetSimulator:
         """
         n = len(data)
         T = n / 252.0 # Number of Business days in a year
-        dt = T / (4.0 * n) # 4.0 is needed as four prices per day are required (OHLC)
+        dt = T / (self.points_per_candle * n) # The time skip (each day). Using points_per_candle because thats how many points are in each day
         
         # Generate the asset path using vectorization
         asset_path = np.exp(
             (self.mu - self.sigma**2 / 2) * dt +
-            self.sigma * np.random.normal(0, np.sqrt(dt), size=(4*n))
+            self.sigma * np.random.normal(0, np.sqrt(dt), size=(self.points_per_candle*n))
         )
         
         return self.init_price * asset_path.cumprod()
@@ -189,18 +191,16 @@ class GeometricBrownianMotionAssetSimulator:
             The original NumPy array of the asset price path.
         """
         
-        data['open'] = path[0::4]
-        data['close'] = path[3::4]
+        data['open'] = path[0::self.points_per_candle]
+        data['close'] = path[self.points_per_candle-1::self.points_per_candle]
         
-        data['high'] = np.maximum(
-            np.maximum(path[0::4], path[1::4]),
-            np.maximum(path[2::4], path[3::4])
-        )
+        path_reshaped = path.reshape(len(data), self.points_per_candle)
         
-        data['low'] = np.minimum(
-            np.minimum(path[0::4], path[1::4]),
-            np.minimum(path[2::4], path[3::4])
-        )
+        data['high'] = np.max(path_reshaped, axis=1)
+        data['low'] = np.min(path_reshaped, axis=1)
+        
+        # Store full price paths
+        data['price_path'] = [row.tolist() for row in path_reshaped]
         
     def _append_volume_to_data(self, data):
         """
@@ -254,6 +254,7 @@ if __name__ == "__main__":
     mu = 0.05
     sigma = 0.5
     pareto_shape = 1.5
+    points_per_candle = 20;
     
     gbm = GeometricBrownianMotionAssetSimulator(
         start_date,
@@ -263,7 +264,8 @@ if __name__ == "__main__":
         init_price,
         mu,
         sigma,
-        pareto_shape
+        pareto_shape,
+        points_per_candle
     )
     
     gbm.__call__()

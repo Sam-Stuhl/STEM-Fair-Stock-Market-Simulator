@@ -5,6 +5,7 @@ interface Candle {
     low: number;
     date: string;
     isInEvent: boolean; // This would be true if the candle is a part of a predetermined event. Not randomized
+    price_path: number[];
 }
 
 interface PortfolioSnapshot {

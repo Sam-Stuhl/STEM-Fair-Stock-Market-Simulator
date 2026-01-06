@@ -2,6 +2,8 @@
 html, body {
     height: 100%;
     margin: 0;
+    background: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 body {
@@ -15,44 +17,83 @@ body {
     height: 100%;
     padding: 20px;
     box-sizing: border-box;
+    background: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    margin: 20px;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0;
-    margin-bottom: 20px;
+    padding: 50px 20px 30px 20px;
+    margin: -20px -20px 20px -20px;
+    background: #0f172a;
+    color: white;
+    border-bottom: 2px solid #3b82f6;
+    border-radius: 12px 12px 0 0;
 }
-  
+
 .header-symbol {
     font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #e0e7ff;
 }
-  
+
 .header-price {
     font-size: 56px;
     font-weight: bold;
+    color: #10b981;
 }
 
 .chart-wrapper {
     display: flex;
     flex: 1;
     gap: 10px;
+    min-height: 0;
 }
 
 #chartCanvas {
     flex: 1;
-    border: 1px solid #ccc;
+    border: 1px solid #334155;
+    background: #0f172a;
+    max-height: 100%;
 }
 
-.price-axis {
+#price-axis {
     width: 70px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
     font-size: 12px;
-    color: #666;
-    border-left: 1px solid #ccc;
+    color: #94a3b8;
+    border-left: 1px solid #334155;
     padding-left: 10px;
+    position: relative;
+}
+
+#price-axis > div {
+    margin: 0;
+    padding: 0;
+}
+
+#date-axis {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    font-size: 12px;
+    color: #94a3b8;
+    border-top: 1px solid #334155;
+    padding: 40px 20px 20px 20px;
+    height: auto;
+    position: relative;
+    overflow: visible;
+}
+
+#date-axis > div {
+    margin: 0;
+    padding: 0;
 }

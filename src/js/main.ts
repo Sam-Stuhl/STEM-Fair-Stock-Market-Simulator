@@ -1,16 +1,51 @@
 // Initialization and main event loop for chart view (index.html)
-const SYMBOL = "CMYX"
+const SYMBOL = "WJES";
+const PRICE_INTERVAL = 5;
+const DATE_INTERVAL = 10;
+
+let currentCandles: Candle[] = [];
 
 async function initializeChart() : Promise<void> {
     // Load the data
-    const candles = await loadCandles(SYMBOL);
+    currentCandles = await loadCandles(SYMBOL);
 
-    // Draw the chart
-    drawChart(candles);
+    if (currentCandles.length > 0) {
+        testInterpolation(currentCandles[0]);
+    }
 
-    // Update the header
-    document.getElementById('symbol')!.textContent = SYMBOL;
-    document.getElementById('current_price')!.textContent = '$' + candles[candles.length - 1].close.toFixed(2);
+    // Wait for the browser to finish layout before drawing
+    setTimeout(() => {
+        // Draw everything
+        redrawChart();
+
+        // Update the header
+        document.getElementById('symbol')!.textContent = SYMBOL;
+        document.getElementById('current_price')!.textContent = '$' + currentCandles[currentCandles.length - 1].close.toFixed(2);
+    }, 500);
 }
+
+function redrawChart() : void {
+    // Draw the chart
+    drawChart(currentCandles, PRICE_INTERVAL, DATE_INTERVAL);
+
+    // Draw the price axis
+    drawPriceAxis(currentCandles, PRICE_INTERVAL);
+
+    // Draw the date axis
+    drawDateAxis(currentCandles, DATE_INTERVAL);
+}
+
+// Handle window resize and zoom events
+window.addEventListener('resize', redrawChart);
+window.addEventListener('orientationchange', redrawChart);
+
+// Also listen for zoom changes (works in most browsers)
+let lastZoom = window.devicePixelRatio;
+setInterval(() => {
+    if (window.devicePixelRatio !== lastZoom) {
+        lastZoom = window.devicePixelRatio;
+        redrawChart();
+    }
+}, 100);
 
 initializeChart();

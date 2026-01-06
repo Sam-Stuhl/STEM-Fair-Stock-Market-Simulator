@@ -1,3 +1,4 @@
+"use strict";
 let state = {
     currentPrice: 0,
     currentOpenCandle: null,
@@ -5,20 +6,20 @@ let state = {
     currentPortfolioState: null,
     currentSession: null
 };
-export function updatePrice(newPrice) {
+function updatePrice(newPrice) {
     state.currentPrice = newPrice;
 }
 // --- Candles ---
-export function updateCandle(newCandle) {
+function updateCandle(newCandle) {
     state.currentOpenCandle = newCandle;
 }
-export function closeCandle() {
+function closeCandle() {
     if (state.currentOpenCandle) {
         state.candleHistory.push(state.currentOpenCandle);
     }
 }
 // --- Portfolio ---
-export function recordBuy(numShares, sharesPrice) {
+function recordBuy(numShares, sharesPrice) {
     // Guard clause: exit early if state is invalid
     if (!state.currentPortfolioState || !state.currentSession)
         return;
@@ -47,7 +48,7 @@ export function recordBuy(numShares, sharesPrice) {
         currentBalance: newBalance
     };
 }
-export function recordSell(numShares, sharesPrice) {
+function recordSell(numShares, sharesPrice) {
     // Guard clause: exit early if state is invalid
     if (!state.currentPortfolioState || !state.currentSession)
         return;
@@ -77,7 +78,7 @@ export function recordSell(numShares, sharesPrice) {
     };
 }
 // --- Session ---
-export function initializeSession(isTest) {
+function initializeSession(isTest) {
     // Create new Session Object 
     let now = new Date();
     let year = now.getFullYear();
@@ -107,10 +108,10 @@ export function initializeSession(isTest) {
     state.currentSession = session;
     return session;
 }
-export function endSession() {
+function endSession() {
     // Add old session to the history
     // not sure how to do this yet
 }
-export function getState() {
+function getState() {
     return state;
 }

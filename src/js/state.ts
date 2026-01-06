@@ -15,23 +15,23 @@ let state: State = {
 }
 
 
-export function updatePrice(newPrice: number) : void {
+function updatePrice(newPrice: number) : void {
     state.currentPrice = newPrice;
 }
 
 // --- Candles ---
-export function updateCandle(newCandle: Candle) : void {
+function updateCandle(newCandle: Candle) : void {
     state.currentOpenCandle = newCandle
 }
 
-export function closeCandle() : void {
+function closeCandle() : void {
     if (state.currentOpenCandle) {
         state.candleHistory.push(state.currentOpenCandle);
     }
 }
 
 // --- Portfolio ---
-export function recordBuy(numShares: number, sharesPrice: number) : void {
+function recordBuy(numShares: number, sharesPrice: number) : void {
     // Guard clause: exit early if state is invalid
     if (!state.currentPortfolioState || !state.currentSession) return;
 
@@ -65,7 +65,7 @@ export function recordBuy(numShares: number, sharesPrice: number) : void {
     };
 }
 
-export function recordSell(numShares: number, sharesPrice: number) : void {
+function recordSell(numShares: number, sharesPrice: number) : void {
     // Guard clause: exit early if state is invalid
     if (!state.currentPortfolioState || !state.currentSession) return;
 
@@ -100,7 +100,7 @@ export function recordSell(numShares: number, sharesPrice: number) : void {
 
 // --- Session ---
 
-export function initializeSession(isTest: boolean) : Session {
+function initializeSession(isTest: boolean) : Session {
     // Create new Session Object 
     let now = new Date();
     let year = now.getFullYear();
@@ -134,7 +134,7 @@ export function initializeSession(isTest: boolean) : Session {
     return session;
 }
 
-export function endSession() : void {
+function endSession() : void {
     // Add old session to the history
     // not sure how to do this yet
 }
@@ -145,6 +145,6 @@ export function endSession() : void {
 
 
 
-export function getState() : State {
+function getState() : State {
     return state
 }
