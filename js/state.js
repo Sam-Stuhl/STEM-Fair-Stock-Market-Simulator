@@ -1,4 +1,3 @@
-"use strict";
 let state = {
     currentPrice: 0,
     currentOpenCandle: null,
@@ -115,3 +114,4 @@ function endSession() {
 function getState() {
     return state;
 }
+export {};

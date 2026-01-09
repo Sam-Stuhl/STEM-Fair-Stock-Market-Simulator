@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import ast
 
-symbol = "WJES"
+symbol = "UOPP"
 input_dir = "/Users/sam/Library/CloudStorage/OneDrive-Personal/Programming/Projects/STEM Fair Stock Market Simulator/python-workshop"
 output_dir = "/Users/sam/Library/CloudStorage/OneDrive-Personal/Programming/Projects/STEM Fair Stock Market Simulator/assets"
 

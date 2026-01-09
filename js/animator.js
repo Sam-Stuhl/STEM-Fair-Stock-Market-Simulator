@@ -1,4 +1,102 @@
-"use strict";
+import { drawChart } from './chart.js';
+export class ChartAnimator {
+    constructor(candles, priceInterval, dateInterval) {
+        this.currentCandleIndex = 0;
+        this.candleProgress = 0;
+        this.isPlaying = false;
+        // Timing controls
+        this.animationSpeed = 1.0;
+        this.millisecondsPerCandle = 1000; // Changed from 1000 to 2000 (2 seconds per candle)
+        this.lastTimestamp = 0;
+        // Viewport reference
+        this.viewport = null;
+        this.candles = candles;
+        this.priceInterval = priceInterval;
+        this.dateInterval = dateInterval;
+    }
+    setViewport(viewport) {
+        this.viewport = viewport;
+    }
+    getState() {
+        return {
+            currentCandleIndex: this.currentCandleIndex,
+            candleProgress: this.candleProgress,
+            isPlaying: this.isPlaying,
+            totalCandles: this.candles.length
+        };
+    }
+    play() {
+        if (this.isPlaying)
+            return;
+        this.isPlaying = true;
+        this.lastTimestamp = 0;
+        // Start the animation loop
+        requestAnimationFrame((ts) => this.animate(ts));
+    }
+    pause() {
+        this.isPlaying = false;
+    }
+    animate(timestamp) {
+        if (!this.isPlaying)
+            return;
+        // Calculate delta time (how much time passed since last frame)
+        const deltaTime = this.lastTimestamp === 0 ? 0 : timestamp - this.lastTimestamp;
+        this.lastTimestamp = timestamp;
+        // Update progress based on time and speed
+        const progressIncrement = (deltaTime / this.millisecondsPerCandle) * this.animationSpeed;
+        this.candleProgress += progressIncrement;
+        const visibleCandles = this.getVisibleCandles();
+        drawChart(visibleCandles, this.priceInterval, this.dateInterval, this.viewport ?? undefined);
+        if (visibleCandles.length > 0) {
+            this.updateHeaderPrice(visibleCandles[visibleCandles.length - 1].open, visibleCandles[visibleCandles.length - 1].close);
+        }
+        if (this.currentCandleIndex % 5 === 0 && this.candleProgress < 0.05) {
+            console.log(`Rendering candle ${this.currentCandleIndex + 1} of ${this.candles.length}`);
+        }
+        // Move to next candle whe current one completes
+        if (this.candleProgress >= 1.0) {
+            this.currentCandleIndex++;
+            this.candleProgress = 0;
+            // Update viewport to follow animation (auto-scroll)
+            if (this.viewport && this.currentCandleIndex + 1 > 70) {
+                this.viewport.updateForNewCandle(this.currentCandleIndex + 1);
+            }
+            console.log(`Moving to candle ${this.currentCandleIndex}`);
+            // Stop if animation complete
+            if (this.currentCandleIndex >= this.candles.length) {
+                console.log('Animation complete!');
+                this.isPlaying = false;
+                this.currentCandleIndex = this.candles.length - 1;
+                this.candleProgress = 1.0;
+                return;
+            }
+        }
+        // Schedule next frame (this creates the loop!)
+        requestAnimationFrame((ts) => this.animate(ts));
+    }
+    getVisibleCandles() {
+        const visible = [];
+        // Add all complete candles (fully formed)
+        for (let i = 0; i < this.currentCandleIndex; i++) {
+            visible.push(this.candles[i]);
+        }
+        // Add currently animating candle (partially formed)
+        if (this.currentCandleIndex < this.candles.length) {
+            const interpolated = interpolateCandle(this.candles[this.currentCandleIndex], this.candleProgress);
+            visible.push(interpolated);
+        }
+        return visible;
+    }
+    updateHeaderPrice(candleOpen, price) {
+        const priceEl = document.getElementById("current_price");
+        if (priceEl) {
+            priceEl.textContent = '$' + price.toFixed(2);
+            // Color based on first candle vs current price - TradingView colors
+            const isUp = price >= candleOpen;
+            priceEl.style.color = isUp ? "#26a69a" : "#ef5350";
+        }
+    }
+}
 // Linear interpolation: smoothly blend from start to end based on progress
 function lerp(start, end, progress) {
     return start + (end - start) * progress;

@@ -246,7 +246,7 @@ if __name__ == "__main__":
     # num_assets = 5
     # random_seed = 41
     
-    start_date = '2025-06-01'
+    start_date = '2024-06-01'
     end_date = '2025-08-31'
     output_dir = '/Users/sam/Library/CloudStorage/OneDrive-Personal/Programming/Projects/STEM Fair Stock Market Simulator/python-workshop'
     symbol_length = 4

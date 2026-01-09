@@ -1,31 +1,56 @@
-"use strict";
+import { ChartAnimator } from './animator.js';
+import { loadCandles, drawChart } from './chart.js';
+import { ViewportManager } from './viewport.js';
 // Initialization and main event loop for chart view (index.html)
-const SYMBOL = "WJES";
+const SYMBOL = "UOPP";
 const PRICE_INTERVAL = 5;
-const DATE_INTERVAL = 10;
+const DATE_INTERVAL = 10; // Changed from 10 to 5 - show date labels every 5 candles
 let currentCandles = [];
+let animator = null;
+let viewport = null;
 async function initializeChart() {
-    // Load the data
-    currentCandles = await loadCandles(SYMBOL);
-    if (currentCandles.length > 0) {
-        testInterpolation(currentCandles[0]);
+    try {
+        console.log('Initializing chart...');
+        // Load the data
+        currentCandles = await loadCandles(SYMBOL);
+        console.log(`Loaded ${currentCandles.length} candles for ${SYMBOL}`);
+        viewport = new ViewportManager({
+            totalCandles: currentCandles.length,
+            defaultVisibleCandles: 70,
+            minVisibleCandles: 30,
+            maxVisibleCandles: 150
+        });
+        console.log('Viewport initialized:', viewport.getViewportRange());
+        setTimeout(() => {
+            // Initialize animator
+            animator = new ChartAnimator(currentCandles, PRICE_INTERVAL, DATE_INTERVAL);
+            console.log('ChartAnimator created');
+            // Connect viewport to animator
+            if (viewport) {
+                animator.setViewport(viewport);
+                console.log('Viewport connected to animator');
+            }
+            // Update header
+            const symbolEl = document.getElementById('symbol');
+            if (symbolEl) {
+                symbolEl.textContent = SYMBOL;
+                console.log(`Symbol header updated to: ${SYMBOL}`);
+            }
+            else {
+                console.error('Could not find element with id "symbol"');
+            }
+            // Start animation automatically
+            console.log('Starting animation...');
+            animator.play();
+        }, 500);
     }
-    // Wait for the browser to finish layout before drawing
-    setTimeout(() => {
-        // Draw everything
-        redrawChart();
-        // Update the header
-        document.getElementById('symbol').textContent = SYMBOL;
-        document.getElementById('current_price').textContent = '$' + currentCandles[currentCandles.length - 1].close.toFixed(2);
-    }, 500);
+    catch (error) {
+        console.error('Error initializing chart:', error);
+    }
 }
 function redrawChart() {
     // Draw the chart
-    drawChart(currentCandles, PRICE_INTERVAL, DATE_INTERVAL);
-    // Draw the price axis
-    drawPriceAxis(currentCandles, PRICE_INTERVAL);
-    // Draw the date axis
-    drawDateAxis(currentCandles, DATE_INTERVAL);
+    drawChart(currentCandles, PRICE_INTERVAL, DATE_INTERVAL, viewport ?? undefined);
 }
 // Handle window resize and zoom events
 window.addEventListener('resize', redrawChart);

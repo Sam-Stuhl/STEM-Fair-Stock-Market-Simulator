@@ -1,4 +1,4 @@
-interface Candle {
+export interface Candle {
     open: number;
     high: number;
     close: number;
@@ -8,7 +8,7 @@ interface Candle {
     price_path: number[];
 }
 
-interface PortfolioSnapshot {
+export interface PortfolioSnapshot {
     id: number;
     timestamp: string;
     transactionType: string;
@@ -19,14 +19,14 @@ interface PortfolioSnapshot {
     currentBalance: number;
 }
 
-interface PortfolioData {
+export interface PortfolioData {
     id: number;
     start: PortfolioSnapshot | null;
     end: PortfolioSnapshot | null;
     statesInBetween: PortfolioSnapshot[];
 }
 
-interface Session {
+export interface Session {
     id: number;
     startTime: string;
     endTime: string | null;

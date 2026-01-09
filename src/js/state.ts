@@ -1,3 +1,5 @@
+import { Candle, PortfolioSnapshot, Session } from './types.js';
+
 interface State {
     currentPrice: number;
     currentOpenCandle: Candle | null;
