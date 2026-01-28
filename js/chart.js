@@ -168,6 +168,10 @@ export function drawChart(candles, priceInterval, dateInterval, viewport) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // get min and max
     const [minPrice, maxPrice] = _getMinMax(visibleCandles, MAX_MIN_PADDING);
+    // Handle empty candles array
+    if (visibleCandles.length === 0) {
+        return;
+    }
     const priceLabels = _getPriceLabels(visibleCandles, priceInterval, minPrice, maxPrice);
     const dateLabels = _getDateLabels(visibleCandles, dateInterval);
     drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice);

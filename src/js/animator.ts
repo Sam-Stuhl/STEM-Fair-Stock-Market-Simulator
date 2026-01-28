@@ -102,7 +102,7 @@ export class ChartAnimator {
         requestAnimationFrame((ts) => this.animate(ts));
     }
 
-    private getVisibleCandles(): Candle[] {
+    public getVisibleCandles(): Candle[] {
         const visible: Candle[] = [];
 
         // Add all complete candles (fully formed)

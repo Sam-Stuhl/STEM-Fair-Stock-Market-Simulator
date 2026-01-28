@@ -1,4 +1,4 @@
-import { detectCanvasRegion, getCanvasRegions } from "./chart";
+import { detectCanvasRegion, getCanvasRegions } from "./chart.js";
 export class InteractionManager {
     constructor(canvas, viewport, redrawCallback) {
         this.canvas = canvas;
@@ -69,8 +69,13 @@ export class InteractionManager {
     }
     onMouseUp(event) {
         if (this.dragState.isDragging) {
+            const wasChartDrag = this.dragState.activeRegion === 'chartArea';
             this.dragState.isDragging = false;
             this.dragState.activeRegion = null;
+            // Re-enable auto-scroll if user dragged back to the trailing edge
+            if (wasChartDrag && this.viewport.isAtTrailingEdge()) {
+                this.viewport.enableAutoScroll();
+            }
             // Update cursor back to default or hover state
             const rect = this.canvas.getBoundingClientRect();
             const mouseX = (event.clientX - rect.left) * (this.canvas.width / rect.width);

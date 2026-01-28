@@ -2,6 +2,7 @@ import { ChartAnimator } from './animator.js';
 import { Candle } from './types.js';
 import { loadCandles, drawChart } from './chart.js';
 import { ViewportManager } from './viewport.js';
+import { InteractionManager } from './interactions.js';
 
 // Initialization and main event loop for chart view (index.html)
 const SYMBOL = "UOPP";
@@ -12,6 +13,7 @@ let currentCandles: Candle[] = [];
 
 let animator: ChartAnimator | null = null;
 let viewport: ViewportManager | null = null;
+let interactionManager: InteractionManager | null = null;
 
 async function initializeChart() : Promise<void> {
     try {
@@ -38,6 +40,22 @@ async function initializeChart() : Promise<void> {
             if (viewport) {
                 animator.setViewport(viewport);
                 console.log('Viewport connected to animator');
+            }
+
+            const canvas = document.getElementById('chartCanvas') as HTMLCanvasElement;
+            if (canvas && viewport) {
+                interactionManager = new InteractionManager(
+                    canvas,
+                    viewport,
+                    () => {
+                        // Redraw callback: when viewport changes due to user interaction 
+                        if (animator && viewport) {
+                            const visibleCandles = animator.getVisibleCandles();
+                            drawChart(visibleCandles, PRICE_INTERVAL, DATE_INTERVAL, viewport)
+                        }
+                    }
+                );
+                console.log('InteractionManager initialized');
             }
 
             // Update header

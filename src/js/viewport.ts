@@ -136,4 +136,12 @@ export class ViewportManager {
     public getTotalCandles(): number {
         return this.totalCandles;
     }
+
+    /**
+     * Check if viewport is at the trailing edge (viewing the most recent candles).
+     * Used to determine if auto-scroll should be re-enabled.
+     */
+    public isAtTrailingEdge(): boolean {
+        return this.endCandleIndex >= this.totalCandles;
+    }
 }

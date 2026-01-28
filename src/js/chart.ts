@@ -235,6 +235,11 @@ export function drawChart(
     // get min and max
     const [minPrice, maxPrice] = _getMinMax(visibleCandles, MAX_MIN_PADDING);
 
+    // Handle empty candles array
+    if (visibleCandles.length === 0) {
+        return;
+    }
+
     const priceLabels = _getPriceLabels(visibleCandles, priceInterval, minPrice, maxPrice);
     const dateLabels = _getDateLabels(visibleCandles, dateInterval);
 
