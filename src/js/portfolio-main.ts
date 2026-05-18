@@ -127,6 +127,9 @@ function renderAll(): void {
         marketValue: marketValue(),
         pnl:         pnl(),
         txCount:     transactions.length,
+        transactions: transactions.slice(-30).map(tx => ({
+            type: tx.type, quantity: tx.quantity, price: tx.price, timestamp: tx.timestamp
+        })),
     }));
 }
 

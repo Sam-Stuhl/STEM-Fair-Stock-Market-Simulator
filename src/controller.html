@@ -30,24 +30,15 @@
 
         <section class="preview-section">
             <div class="preview-header">
-                <span class="preview-label">Live Previews</span>
+                <span class="preview-label">Chart Preview</span>
                 <span class="conn-status">
                     <span class="conn-dot" id="conn-dot"></span>
                     <span id="conn-text">Waiting for devices...</span>
                 </span>
             </div>
-            <div class="preview-grid">
-                <div class="preview-card">
-                    <div class="preview-title">Chart View</div>
-                    <div class="iframe-wrapper">
-                        <iframe src="index.html" scrolling="no" tabindex="-1"></iframe>
-                    </div>
-                </div>
-                <div class="preview-card">
-                    <div class="preview-title">Student Portfolio</div>
-                    <div class="iframe-wrapper">
-                        <iframe src="portfolio.html" scrolling="no" tabindex="-1"></iframe>
-                    </div>
+            <div class="preview-card">
+                <div class="iframe-wrapper">
+                    <iframe src="index.html" scrolling="no" tabindex="-1"></iframe>
                 </div>
             </div>
         </section>
@@ -101,6 +92,13 @@
             </section>
 
         </div>
+
+        <section class="tx-section">
+            <div class="tx-header">Transaction Feed</div>
+            <div class="tx-list" id="ctrl-tx-list">
+                <div class="tx-empty">No transactions yet</div>
+            </div>
+        </section>
 
     </div>
 

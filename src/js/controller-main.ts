@@ -30,6 +30,7 @@ const elShares      = document.getElementById('ctrl-shares')!;
 const elMktVal      = document.getElementById('ctrl-mktval')!;
 const elPnl         = document.getElementById('ctrl-pnl')!;
 const elTxCount     = document.getElementById('ctrl-tx-count')!;
+const elTxList      = document.getElementById('ctrl-tx-list')!;
 
 const btnNormal = document.getElementById('btn-normal') as HTMLButtonElement;
 const btnBull   = document.getElementById('btn-bull')   as HTMLButtonElement;
@@ -107,8 +108,12 @@ function poll(): void {
         elChange.className   = 'info-value ' + (changePct >= 0 ? 'positive' : 'negative');
     }
 
-    // Regime time
-    elRegimeTime.textContent = fmtDuration(Date.now() - regimeSince);
+    // Regime time + auto-expire bull/bear after 60 seconds
+    const regimeElapsed = Date.now() - regimeSince;
+    elRegimeTime.textContent = fmtDuration(regimeElapsed);
+    if (currentRegime !== 'normal' && regimeElapsed >= 60_000) {
+        applyRegime('normal');
+    }
 
     // Portfolio from portfolio page
     const rawPf = comms.getLatest('stock-sim-portfolio');
@@ -123,13 +128,54 @@ function poll(): void {
             elPnl.textContent  = fmtMoney(p);
             elPnl.className    = 'info-value ' + (p >= 0 ? 'positive' : 'negative');
             elTxCount.textContent = String(pf.txCount ?? 0);
+
+            renderTxFeed(pf.transactions ?? []);
         } catch { /* ignore malformed data */ }
     }
 }
 
+let lastTxCount = 0;
+
+function renderTxFeed(txs: Array<{type: string, quantity: number, price: number, timestamp: string}>): void {
+    if (txs.length === lastTxCount) return;
+    lastTxCount = txs.length;
+
+    if (txs.length === 0) {
+        elTxList.innerHTML = '<div class="tx-empty">No transactions yet</div>';
+        return;
+    }
+
+    elTxList.innerHTML = '';
+    for (let i = txs.length - 1; i >= 0; i--) {
+        const tx = txs[i];
+        const el = document.createElement('div');
+        el.className = 'tx-item';
+        el.innerHTML = `
+            <span class="tx-badge ${tx.type}">${tx.type.toUpperCase()}</span>
+            <span class="tx-detail">${tx.quantity} share${tx.quantity === 1 ? '' : 's'} @ $${tx.price.toFixed(2)}</span>
+            <span class="tx-time">${tx.timestamp}</span>
+        `;
+        elTxList.appendChild(el);
+    }
+}
+
 setInterval(poll, 200);
-poll(); // run immediately on load
+poll();
 updateRegimeButtons();
+
+// ── Responsive iframe scaling ──────────────────────────────────────────────
+
+function scaleChartPreview(): void {
+    const wrapper = document.querySelector('.iframe-wrapper') as HTMLElement | null;
+    const iframe  = wrapper?.querySelector('iframe') as HTMLElement | null;
+    if (!wrapper || !iframe) return;
+    const scale = wrapper.clientWidth / 1200;
+    iframe.style.transform = `scale(${scale})`;
+    wrapper.style.height   = `${Math.round(700 * scale)}px`;
+}
+
+window.addEventListener('resize', scaleChartPreview);
+setTimeout(scaleChartPreview, 0);
 
 // ── Connection status + client count ──────────────────────────────────────
 
@@ -168,6 +214,8 @@ btnReset.addEventListener('click', () => {
     elPnl.textContent     = '$0.00';
     elPnl.className       = 'info-value';
     elTxCount.textContent = '0';
+    lastTxCount = 0;
+    elTxList.innerHTML = '<div class="tx-empty">No transactions yet</div>';
 
     applyRegime('normal');
 });

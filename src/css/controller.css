@@ -202,12 +202,6 @@ body { overflow-y: auto; }
 
 .conn-dot.live { background: #26a69a; }
 
-.preview-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
 .preview-card {
     background: #0f1117;
     border: 1px solid #2a2e39;
@@ -215,20 +209,11 @@ body { overflow-y: auto; }
     overflow: hidden;
 }
 
-.preview-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #5d6673;
-    padding: 10px 12px;
-    border-bottom: 1px solid #2a2e39;
-}
-
-/* Iframe at natural full size, scaled down with CSS transform */
+/* Iframe at natural full size, scaled down with CSS transform.
+   Height and transform are set dynamically by JS based on container width. */
 .iframe-wrapper {
     position: relative;
-    height: 234px; /* 700 * 0.33 ≈ 231; add a few px for rounding */
+    width: 100%;
     overflow: hidden;
 }
 
@@ -236,9 +221,76 @@ body { overflow-y: auto; }
     width: 1200px;
     height: 700px;
     border: none;
-    transform: scale(0.33);
+    display: block;
     transform-origin: top left;
-    pointer-events: none; /* prevent accidental interaction with previews */
+    pointer-events: none;
+}
+
+/* ── Transaction feed ────────────────────────────────── */
+
+.tx-section {
+    padding: 20px 24px;
+    border-top: 1px solid #2a2e39;
+}
+
+.tx-header {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #5d6673;
+    margin-bottom: 12px;
+}
+
+.tx-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.tx-empty {
+    font-size: 13px;
+    color: #363a45;
+    padding: 12px 0;
+}
+
+.tx-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #1e222d;
+    border-radius: 4px;
+    border: 1px solid #2a2e39;
+}
+
+.tx-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.tx-badge.buy  { background: rgba(38,166,154,0.15); color: #26a69a; }
+.tx-badge.sell { background: rgba(239,83,80,0.15);  color: #ef5350; }
+
+.tx-detail {
+    font-size: 14px;
+    font-weight: 600;
+    color: #d1d4dc;
+    flex: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.tx-time {
+    font-size: 12px;
+    color: #5d6673;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
 }
 
 /* ── Reset button ────────────────────────────────────── */
