@@ -89,7 +89,7 @@ function poll() {
     // Regime time + auto-expire bull/bear after 60 seconds
     const regimeElapsed = Date.now() - regimeSince;
     elRegimeTime.textContent = fmtDuration(regimeElapsed);
-    if (currentRegime !== 'normal' && regimeElapsed >= 60000) {
+    if (currentRegime !== 'normal' && regimeElapsed >= 120000) {
         applyRegime('normal');
     }
     // Portfolio from portfolio page

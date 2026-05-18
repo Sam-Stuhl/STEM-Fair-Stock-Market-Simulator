@@ -5,8 +5,8 @@ const POINTS_PER_CANDLE = 20;
 // without being so extreme that the price collapses or doubles in under a minute.
 const REGIME_PARAMS = {
     normal: { mu: 0.05, sigma: 0.40 },
-    bull: { mu: 0.9, sigma: 0.30 },
-    bear: { mu: -1.1, sigma: 0.50 },
+    bull: { mu: 1.8, sigma: 0.30 },
+    bear: { mu: -2.0, sigma: 0.50 },
 };
 let currentRegime = 'normal';
 export function setRegime(regime) {

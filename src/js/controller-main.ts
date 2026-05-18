@@ -111,7 +111,7 @@ function poll(): void {
     // Regime time + auto-expire bull/bear after 60 seconds
     const regimeElapsed = Date.now() - regimeSince;
     elRegimeTime.textContent = fmtDuration(regimeElapsed);
-    if (currentRegime !== 'normal' && regimeElapsed >= 60_000) {
+    if (currentRegime !== 'normal' && regimeElapsed >= 120_000) {
         applyRegime('normal');
     }
 
