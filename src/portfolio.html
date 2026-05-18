@@ -8,13 +8,69 @@
     <link rel="stylesheet" href="css/portfolio.css">
 </head>
 <body>
-    <div id="portfolioContainer">
-        <!-- Portfolio info and trading interface will go here -->
+    <div class="portfolio-wrapper">
+
+        <header class="portfolio-header">
+            <span class="header-symbol">UOPP</span>
+            <div class="price-block">
+                <span class="portfolio-price" id="portfolio-price">--</span>
+                <span class="price-status" id="price-status">Waiting for market...</span>
+            </div>
+        </header>
+
+        <main class="portfolio-main">
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">CASH</div>
+                    <div class="stat-value" id="stat-cash">$10,000.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">SHARES OWNED</div>
+                    <div class="stat-value" id="stat-shares">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">MARKET VALUE</div>
+                    <div class="stat-value" id="stat-market-value">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">TOTAL P&amp;L</div>
+                    <div class="stat-value" id="stat-pnl">$0.00</div>
+                </div>
+            </section>
+
+            <section class="trade-section">
+                <div class="quantity-row">
+                    <label class="qty-label">Shares</label>
+                    <input type="number" id="quantity-input" min="1" step="1" value="1">
+                    <div class="quick-qty">
+                        <button class="qty-btn" data-qty="1">1</button>
+                        <button class="qty-btn" data-qty="5">5</button>
+                        <button class="qty-btn" data-qty="10">10</button>
+                        <button class="qty-btn" data-qty="25">25</button>
+                    </div>
+                </div>
+
+                <div class="trade-cost" id="trade-cost">&nbsp;</div>
+
+                <div class="trade-buttons">
+                    <button class="btn-trade btn-buy" id="btn-buy">BUY</button>
+                    <button class="btn-trade btn-sell" id="btn-sell">SELL</button>
+                </div>
+
+                <div class="trade-error" id="trade-error"></div>
+            </section>
+
+            <section class="history-section">
+                <h3 class="history-title">Transaction History</h3>
+                <div class="history-list" id="history-list">
+                    <div class="history-empty">No transactions yet</div>
+                </div>
+            </section>
+
+        </main>
     </div>
 
-    <script src="../js/state.js"></script>
-    <script src="../js/storage.js"></script>
-    <script src="../js/utils.js"></script>
-    <script src="../js/portfolio-main.js"></script>
+    <script type="module" src="../js/portfolio-main.js"></script>
 </body>
 </html>

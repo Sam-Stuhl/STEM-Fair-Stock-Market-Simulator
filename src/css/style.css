@@ -40,6 +40,17 @@ body {
     text-transform: uppercase;
 }
 
+.header-regime {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #131722;
+    padding: 4px 12px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease, background 0.2s ease;
+}
+
 .header-price {
     font-size: 24px;
     font-weight: 600;

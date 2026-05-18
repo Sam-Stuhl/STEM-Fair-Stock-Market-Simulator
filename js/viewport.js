@@ -5,11 +5,13 @@ export class ViewportManager {
         this.endCandleIndex = 70;
         // Price viewport (vertical zoom)
         this.priceZoomFactor = 1.0;
+        this.defaultVisibleCandles = 70;
         this.minVisibleCandles = 30;
         this.maxVisibleCandles = 150;
         // Auto-scroll state
         this.autoScrollEnabled = true;
         this.totalCandles = config.totalCandles;
+        this.defaultVisibleCandles = config.defaultVisibleCandles;
         this.minVisibleCandles = config.minVisibleCandles;
         this.maxVisibleCandles = config.maxVisibleCandles;
         // Initialize viewport to show first N candles
@@ -58,12 +60,11 @@ export class ViewportManager {
     updateForNewCandle(newTotalCandles) {
         this.totalCandles = newTotalCandles;
         if (this.autoScrollEnabled) {
-            // Keep viewport at trailing edge (show most recent candles)
-            const visibleCount = this.getVisibleCandleCount();
+            // Grow window up to defaultVisibleCandles, then hold at that size
+            const desiredCount = Math.min(newTotalCandles, this.defaultVisibleCandles);
             this.endCandleIndex = newTotalCandles;
-            this.startCandleIndex = Math.max(0, newTotalCandles - visibleCount);
+            this.startCandleIndex = Math.max(0, newTotalCandles - desiredCount);
         }
-        // If auto-scroll disabled, viewport stays at current position
     }
     disableAutoScroll() {
         this.autoScrollEnabled = false;
@@ -82,6 +83,11 @@ export class ViewportManager {
     // --- Getters ---
     getVisibleCandleCount() {
         return this.endCandleIndex - this.startCandleIndex;
+    }
+    // The intended number of candle slots to render into — stable even while
+    // the chart is still filling up. Use this for candle width calculations.
+    getDefaultVisibleCount() {
+        return this.defaultVisibleCandles;
     }
     getViewportRange() {
         return {

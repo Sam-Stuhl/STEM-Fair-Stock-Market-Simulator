@@ -172,6 +172,7 @@ export function drawChart(candles, priceInterval, dateInterval, viewport) {
     if (visibleCandles.length === 0) {
         return;
     }
+    const candleWidth = regions.chartArea.width / visibleCandles.length;
     const priceLabels = _getPriceLabels(visibleCandles, priceInterval, minPrice, maxPrice);
     const dateLabels = _getDateLabels(visibleCandles, dateInterval);
     drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice);
@@ -189,7 +190,6 @@ export function drawChart(candles, priceInterval, dateInterval, viewport) {
     ctx.moveTo(0, regions.dateAxis.y);
     ctx.lineTo(regions.chartArea.width, regions.dateAxis.y);
     ctx.stroke();
-    const candleWidth = regions.chartArea.width / visibleCandles.length;
     // -- draw candles --
     for (let i = 0; i < visibleCandles.length; i++) {
         const candle = visibleCandles[i];

@@ -1,4 +1,5 @@
 import { drawChart } from './chart.js';
+import { generateCandle, nextBusinessDate, setRegime } from './priceGenerator.js';
 export class ChartAnimator {
     constructor(candles, priceInterval, dateInterval) {
         this.currentCandleIndex = 0;
@@ -10,9 +11,21 @@ export class ChartAnimator {
         this.lastTimestamp = 0;
         // Viewport reference
         this.viewport = null;
+        // Optional callback fired each time the displayed price changes
+        this.onPriceUpdate = null;
         this.candles = candles;
         this.priceInterval = priceInterval;
         this.dateInterval = dateInterval;
+        if (this.candles.length === 0) {
+            // Fresh start — seed the very first candle from a fixed starting price
+            this.candles.push(generateCandle(100, '2025-01-02'));
+            this.currentCandleIndex = 0;
+        }
+        else {
+            // Continue from end of any pre-loaded data
+            this.generateAndAppendNextCandle();
+            this.currentCandleIndex = this.candles.length - 1;
+        }
     }
     setViewport(viewport) {
         this.viewport = viewport;
@@ -36,6 +49,15 @@ export class ChartAnimator {
     pause() {
         this.isPlaying = false;
     }
+    setRegime(regime) {
+        setRegime(regime);
+    }
+    generateAndAppendNextCandle() {
+        const last = this.candles[this.candles.length - 1];
+        const nextPrice = last.price_path[last.price_path.length - 1];
+        const nextDate = nextBusinessDate(last.date);
+        this.candles.push(generateCandle(nextPrice, nextDate));
+    }
     animate(timestamp) {
         if (!this.isPlaying)
             return;
@@ -53,22 +75,17 @@ export class ChartAnimator {
         if (this.currentCandleIndex % 5 === 0 && this.candleProgress < 0.05) {
             console.log(`Rendering candle ${this.currentCandleIndex + 1} of ${this.candles.length}`);
         }
-        // Move to next candle whe current one completes
+        // Move to next candle when current one completes
         if (this.candleProgress >= 1.0) {
             this.currentCandleIndex++;
             this.candleProgress = 0;
-            // Update viewport to follow animation (auto-scroll)
-            if (this.viewport && this.currentCandleIndex + 1 > 70) {
-                this.viewport.updateForNewCandle(this.currentCandleIndex + 1);
-            }
-            console.log(`Moving to candle ${this.currentCandleIndex}`);
-            // Stop if animation complete
+            // Generate the next candle. Regime changes take effect here.
             if (this.currentCandleIndex >= this.candles.length) {
-                console.log('Animation complete!');
-                this.isPlaying = false;
-                this.currentCandleIndex = this.candles.length - 1;
-                this.candleProgress = 1.0;
-                return;
+                this.generateAndAppendNextCandle();
+            }
+            // Always keep viewport tracking the live edge
+            if (this.viewport) {
+                this.viewport.updateForNewCandle(this.candles.length);
             }
         }
         // Schedule next frame (this creates the loop!)
@@ -91,10 +108,11 @@ export class ChartAnimator {
         const priceEl = document.getElementById("current_price");
         if (priceEl) {
             priceEl.textContent = '$' + price.toFixed(2);
-            // Color based on first candle vs current price - TradingView colors
             const isUp = price >= candleOpen;
             priceEl.style.color = isUp ? "#26a69a" : "#ef5350";
         }
+        if (this.onPriceUpdate)
+            this.onPriceUpdate(price);
     }
 }
 // Linear interpolation: smoothly blend from start to end based on progress
@@ -126,19 +144,4 @@ function interpolateCandle(targetCandle, progress) {
         isInEvent: targetCandle.isInEvent,
         price_path: targetCandle.price_path
     };
-}
-function testInterpolation(candle) {
-    console.log('=== Testing Interpolation ===');
-    console.log('Original candle:', {
-        open: candle.open,
-        high: candle.high,
-        low: candle.low,
-        close: candle.close
-    });
-    console.log('\nInterpolating at different progress values:');
-    // Test at 0%, 25%, 50%, 75%, 100%
-    [0.0, 0.25, 0.5, 0.75, 1.0].forEach(progress => {
-        const interpolated = interpolateCandle(candle, progress);
-        console.log(`  ${(progress * 100).toFixed(0)}%: open=${interpolated.open.toFixed(2)}, high=${interpolated.high.toFixed(2)}, low=${interpolated.low.toFixed(2)}`);
-    });
 }

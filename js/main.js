@@ -1,74 +1,60 @@
 import { ChartAnimator } from './animator.js';
-import { loadCandles, drawChart } from './chart.js';
+import { drawChart } from './chart.js';
 import { ViewportManager } from './viewport.js';
 import { InteractionManager } from './interactions.js';
-// Initialization and main event loop for chart view (index.html)
+import { comms } from './comms.js';
+const isPreview = window.self !== window.top;
+comms.connect();
 const SYMBOL = "UOPP";
 const PRICE_INTERVAL = 5;
-const DATE_INTERVAL = 10; // Changed from 10 to 5 - show date labels every 5 candles
-let currentCandles = [];
+const DATE_INTERVAL = 10;
 let animator = null;
 let viewport = null;
-let interactionManager = null;
-async function initializeChart() {
-    try {
-        console.log('Initializing chart...');
-        // Load the data
-        currentCandles = await loadCandles(SYMBOL);
-        console.log(`Loaded ${currentCandles.length} candles for ${SYMBOL}`);
-        viewport = new ViewportManager({
-            totalCandles: currentCandles.length,
-            defaultVisibleCandles: 70,
-            minVisibleCandles: 30,
-            maxVisibleCandles: 150
+function initializeChart() {
+    viewport = new ViewportManager({
+        totalCandles: 70,
+        defaultVisibleCandles: 70,
+        minVisibleCandles: 30,
+        maxVisibleCandles: 150
+    });
+    // No historical data — animator seeds the first candle from scratch
+    animator = new ChartAnimator([], PRICE_INTERVAL, DATE_INTERVAL);
+    animator.setViewport(viewport);
+    const canvas = document.getElementById('chartCanvas');
+    if (canvas && viewport) {
+        new InteractionManager(canvas, viewport, () => {
+            if (animator && viewport) {
+                drawChart(animator.getVisibleCandles(), PRICE_INTERVAL, DATE_INTERVAL, viewport);
+            }
         });
-        console.log('Viewport initialized:', viewport.getViewportRange());
-        setTimeout(() => {
-            // Initialize animator
-            animator = new ChartAnimator(currentCandles, PRICE_INTERVAL, DATE_INTERVAL);
-            console.log('ChartAnimator created');
-            // Connect viewport to animator
-            if (viewport) {
-                animator.setViewport(viewport);
-                console.log('Viewport connected to animator');
-            }
-            const canvas = document.getElementById('chartCanvas');
-            if (canvas && viewport) {
-                interactionManager = new InteractionManager(canvas, viewport, () => {
-                    // Redraw callback: when viewport changes due to user interaction 
-                    if (animator && viewport) {
-                        const visibleCandles = animator.getVisibleCandles();
-                        drawChart(visibleCandles, PRICE_INTERVAL, DATE_INTERVAL, viewport);
-                    }
-                });
-                console.log('InteractionManager initialized');
-            }
-            // Update header
-            const symbolEl = document.getElementById('symbol');
-            if (symbolEl) {
-                symbolEl.textContent = SYMBOL;
-                console.log(`Symbol header updated to: ${SYMBOL}`);
-            }
-            else {
-                console.error('Could not find element with id "symbol"');
-            }
-            // Start animation automatically
-            console.log('Starting animation...');
-            animator.play();
-        }, 500);
     }
-    catch (error) {
-        console.error('Error initializing chart:', error);
-    }
+    const symbolEl = document.getElementById('symbol');
+    if (symbolEl)
+        symbolEl.textContent = SYMBOL;
+    // Broadcast price + candle snapshot so portfolio/controller/previews stay in sync.
+    let lastWrite = 0;
+    animator.onPriceUpdate = (price) => {
+        if (isPreview)
+            return;
+        const now = performance.now();
+        if (now - lastWrite > 100) {
+            lastWrite = now;
+            comms.publish('stock-sim-price', String(price));
+            // Publish slim candle snapshot for the controller's preview iframe
+            const visible = animator.getVisibleCandles();
+            const slim = visible.map(c => ({ open: c.open, high: c.high, low: c.low, close: c.close, date: c.date }));
+            comms.publish('stock-sim-candles', JSON.stringify(slim));
+        }
+    };
+    animator.play();
 }
 function redrawChart() {
-    // Draw the chart
-    drawChart(currentCandles, PRICE_INTERVAL, DATE_INTERVAL, viewport ?? undefined);
+    if (animator && viewport) {
+        drawChart(animator.getVisibleCandles(), PRICE_INTERVAL, DATE_INTERVAL, viewport);
+    }
 }
-// Handle window resize and zoom events
 window.addEventListener('resize', redrawChart);
 window.addEventListener('orientationchange', redrawChart);
-// Also listen for zoom changes (works in most browsers)
 let lastZoom = window.devicePixelRatio;
 setInterval(() => {
     if (window.devicePixelRatio !== lastZoom) {
@@ -76,4 +62,56 @@ setInterval(() => {
         redrawChart();
     }
 }, 100);
-initializeChart();
+// React to regime changes from the controller (WebSocket push + localStorage fallback poll)
+let lastAppliedRegime = 'normal';
+function applyRegimeChange(raw) {
+    if (!animator)
+        return;
+    try {
+        const data = JSON.parse(raw);
+        if (data.regime && data.regime !== lastAppliedRegime) {
+            lastAppliedRegime = data.regime;
+            animator.setRegime(data.regime);
+        }
+    }
+    catch { /* ignore */ }
+}
+comms.subscribe('stock-sim-regime', applyRegimeChange);
+setInterval(() => {
+    const raw = comms.getLatest('stock-sim-regime');
+    if (raw)
+        applyRegimeChange(raw);
+}, 200);
+comms.subscribe('stock-sim-reset', () => window.location.reload());
+if (isPreview) {
+    // Preview mode: mirror the real chart by subscribing to its published candle snapshot.
+    // No animator, no publishing — read-only view.
+    comms.subscribe('stock-sim-candles', (raw) => {
+        try {
+            const candles = JSON.parse(raw);
+            drawChart(candles, PRICE_INTERVAL, DATE_INTERVAL);
+        }
+        catch { /* ignore malformed */ }
+    });
+    const priceEl = document.getElementById('current_price');
+    comms.subscribe('stock-sim-price', (raw) => {
+        const p = parseFloat(raw);
+        if (priceEl && isFinite(p))
+            priceEl.textContent = '$' + p.toFixed(2);
+    });
+}
+else {
+    // Keyboard fallback for regime changes
+    window.addEventListener('keydown', (e) => {
+        if (!animator)
+            return;
+        const map = { b: 'bull', r: 'bear', n: 'normal' };
+        const regime = map[e.key.toLowerCase()];
+        if (!regime)
+            return;
+        lastAppliedRegime = regime;
+        animator.setRegime(regime);
+        comms.publish('stock-sim-regime', JSON.stringify({ regime, since: Date.now() }));
+    });
+    initializeChart();
+}

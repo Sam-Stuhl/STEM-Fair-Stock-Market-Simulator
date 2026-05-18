@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presenter Controls</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/controller.css">
+</head>
+<body>
+    <div class="ctrl-wrapper">
+
+        <header class="ctrl-header">
+            <span class="ctrl-title">PRESENTER CONTROLS</span>
+            <div class="ctrl-header-right">
+                <span class="ctrl-status" id="ctrl-status">Waiting for market...</span>
+                <span class="client-count" id="ctrl-client-count">0 devices</span>
+                <span class="ctrl-clock" id="ctrl-clock">--:--:--</span>
+            </div>
+        </header>
+
+        <section class="regime-section">
+            <div class="regime-label">Market Regime</div>
+            <div class="regime-buttons">
+                <button class="regime-btn normal active" id="btn-normal">NORMAL</button>
+                <button class="regime-btn bull"          id="btn-bull">BULL RUN ▲</button>
+                <button class="regime-btn bear"          id="btn-bear">BEAR RUN ▼</button>
+            </div>
+        </section>
+
+        <section class="preview-section">
+            <div class="preview-header">
+                <span class="preview-label">Live Previews</span>
+                <span class="conn-status">
+                    <span class="conn-dot" id="conn-dot"></span>
+                    <span id="conn-text">Waiting for devices...</span>
+                </span>
+            </div>
+            <div class="preview-grid">
+                <div class="preview-card">
+                    <div class="preview-title">Chart View</div>
+                    <div class="iframe-wrapper">
+                        <iframe src="index.html" scrolling="no" tabindex="-1"></iframe>
+                    </div>
+                </div>
+                <div class="preview-card">
+                    <div class="preview-title">Student Portfolio</div>
+                    <div class="iframe-wrapper">
+                        <iframe src="portfolio.html" scrolling="no" tabindex="-1"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <button class="reset-btn" id="btn-reset">RESET SIMULATION</button>
+
+        <div class="info-grid">
+
+            <section class="info-card">
+                <div class="info-card-title">Market</div>
+                <div class="info-row">
+                    <span class="info-label">Current Price</span>
+                    <span class="info-value" id="ctrl-price">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Session Change</span>
+                    <span class="info-value" id="ctrl-change">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Active Regime</span>
+                    <span class="info-value" id="ctrl-regime-label">Normal</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Time in Regime</span>
+                    <span class="info-value" id="ctrl-regime-time">--</span>
+                </div>
+            </section>
+
+            <section class="info-card">
+                <div class="info-card-title">Student Portfolio</div>
+                <div class="info-row">
+                    <span class="info-label">Cash</span>
+                    <span class="info-value" id="ctrl-cash">$10,000.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Shares Owned</span>
+                    <span class="info-value" id="ctrl-shares">0</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Market Value</span>
+                    <span class="info-value" id="ctrl-mktval">$0.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Total P&amp;L</span>
+                    <span class="info-value" id="ctrl-pnl">$0.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Transactions</span>
+                    <span class="info-value" id="ctrl-tx-count">0</span>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <script type="module" src="../js/controller-main.js"></script>
+</body>
+</html>

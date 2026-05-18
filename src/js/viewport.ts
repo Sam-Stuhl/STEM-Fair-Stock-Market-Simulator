@@ -8,6 +8,7 @@ export class ViewportManager {
 
     // Constraints
     private totalCandles: number;
+    private defaultVisibleCandles: number = 70;
     private minVisibleCandles: number = 30;
     private maxVisibleCandles: number = 150;
 
@@ -21,6 +22,7 @@ export class ViewportManager {
         maxVisibleCandles: number;
     }) {
         this.totalCandles = config.totalCandles;
+        this.defaultVisibleCandles = config.defaultVisibleCandles;
         this.minVisibleCandles = config.minVisibleCandles;
         this.maxVisibleCandles = config.maxVisibleCandles;
 
@@ -85,12 +87,11 @@ export class ViewportManager {
         this.totalCandles = newTotalCandles;
 
         if (this.autoScrollEnabled) {
-            // Keep viewport at trailing edge (show most recent candles)
-            const visibleCount = this.getVisibleCandleCount();
+            // Grow window up to defaultVisibleCandles, then hold at that size
+            const desiredCount = Math.min(newTotalCandles, this.defaultVisibleCandles);
             this.endCandleIndex = newTotalCandles;
-            this.startCandleIndex = Math.max(0, newTotalCandles - visibleCount);
+            this.startCandleIndex = Math.max(0, newTotalCandles - desiredCount);
         }
-        // If auto-scroll disabled, viewport stays at current position
     }
 
     public disableAutoScroll(): void {
@@ -116,6 +117,12 @@ export class ViewportManager {
 
     public getVisibleCandleCount(): number {
         return this.endCandleIndex - this.startCandleIndex;
+    }
+
+    // The intended number of candle slots to render into — stable even while
+    // the chart is still filling up. Use this for candle width calculations.
+    public getDefaultVisibleCount(): number {
+        return this.defaultVisibleCandles;
     }
 
     public getViewportRange(): { start: number; end: number } {
