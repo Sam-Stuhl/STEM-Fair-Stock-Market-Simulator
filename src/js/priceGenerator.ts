@@ -10,7 +10,7 @@ const POINTS_PER_CANDLE = 20;
 // without being so extreme that the price collapses or doubles in under a minute.
 const REGIME_PARAMS: Record<MarketRegime, { mu: number; sigma: number }> = {
     normal: { mu: 0.05,  sigma: 0.40 },
-    bull:   { mu: 1.8,   sigma: 0.30 },
+    bull:   { mu: 2.0,   sigma: 0.50 },
     bear:   { mu: -2.0,  sigma: 0.50 },
 };
 

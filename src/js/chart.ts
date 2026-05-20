@@ -8,7 +8,6 @@ import { ViewportManager } from './viewport.js';
 const UP_COLOR = "#26a69a"; // teal green (TradingView style)
 const DOWN_COLOR = "#ef5350"; // red
 const CHART_PADDING = 20;
-const MAX_MIN_PADDING = 5;
 
 // Canvas layout configuration
 const PRICE_AXIS_WIDTH = 80;
@@ -233,7 +232,7 @@ export function drawChart(
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // get min and max
-    const [minPrice, maxPrice] = _getMinMax(visibleCandles, MAX_MIN_PADDING);
+    const [minPrice, maxPrice] = _getMinMax(visibleCandles);
 
     // Handle empty candles array
     if (visibleCandles.length === 0) {
@@ -308,23 +307,20 @@ export function drawChart(
 
 
 // --- Helpers ---
-function _getMinMax(candles: Candle[], padding: number) : [number, number] {
-    // find min and max
+function _getMinMax(candles: Candle[]) : [number, number] {
     let min = Infinity;
     let max = -Infinity;
 
     candles.forEach(candle => {
-        if (candle.high && candle.high > max) {
-            max = candle.high;
-        } else if (candle.low && candle.low < min) {
-            min = candle.low;
-        }
+        if (candle.high > max) max = candle.high;
+        if (candle.low  < min) min = candle.low;
     });
 
-    min -= padding;
-    max += padding;
-
-    return [min, max];
+    // Proportional padding: at least 20% of visible range on each side,
+    // or 4% of the price — whichever is larger. Keeps candles filling the chart
+    // regardless of absolute price level.
+    const padding = Math.max((max - min) * 0.20, max * 0.04);
+    return [min - padding, max + padding];
 }
 
 function _getPriceLabels(candles: Candle[], interval: number, min: number, max: number) : number[] {
