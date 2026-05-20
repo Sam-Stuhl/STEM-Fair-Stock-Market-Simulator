@@ -84,8 +84,7 @@ setInterval(() => {
 }, 200);
 comms.subscribe('stock-sim-reset', () => window.location.reload());
 if (isPreview) {
-    // Preview mode: mirror the real chart by subscribing to its published candle snapshot.
-    // No animator, no publishing — read-only view.
+    // Preview mode: mirror the real chart — no landing screen, no animator.
     comms.subscribe('stock-sim-candles', (raw) => {
         try {
             const candles = JSON.parse(raw);
@@ -113,5 +112,20 @@ else {
         animator.setRegime(regime);
         comms.publish('stock-sim-regime', JSON.stringify({ regime, since: Date.now() }));
     });
-    initializeChart();
+    let chartStarted = false;
+    function activateChart() {
+        if (chartStarted)
+            return;
+        chartStarted = true;
+        const overlay = document.getElementById('landing-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+        }
+        initializeChart();
+    }
+    comms.subscribe('stock-sim-chart-active', (val) => {
+        if (val === 'true')
+            activateChart();
+    });
 }

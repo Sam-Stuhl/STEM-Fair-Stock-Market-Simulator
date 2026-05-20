@@ -27,6 +27,8 @@ const elTxList = document.getElementById('ctrl-tx-list');
 const btnNormal = document.getElementById('btn-normal');
 const btnBull = document.getElementById('btn-bull');
 const btnBear = document.getElementById('btn-bear');
+const btnActivateChart = document.getElementById('btn-activate-chart');
+const btnActivatePortfolio = document.getElementById('btn-activate-portfolio');
 // ── Helpers ────────────────────────────────────────────────────────────────
 function fmtMoney(n) {
     const abs = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -146,6 +148,37 @@ function scaleChartPreview() {
 }
 window.addEventListener('resize', scaleChartPreview);
 setTimeout(scaleChartPreview, 0);
+// ── Screen activation ──────────────────────────────────────────────────────
+function setActivated(btn, label) {
+    btn.classList.add('active');
+    btn.textContent = label + ' ✓';
+    btn.disabled = true;
+}
+function resetActivateButtons() {
+    btnActivateChart.classList.remove('active');
+    btnActivateChart.textContent = 'ACTIVATE CHART';
+    btnActivateChart.disabled = false;
+    btnActivatePortfolio.classList.remove('active');
+    btnActivatePortfolio.textContent = 'ACTIVATE PORTFOLIO';
+    btnActivatePortfolio.disabled = false;
+}
+btnActivateChart.addEventListener('click', () => {
+    comms.publish('stock-sim-chart-active', 'true');
+    setActivated(btnActivateChart, 'CHART ACTIVE');
+});
+btnActivatePortfolio.addEventListener('click', () => {
+    comms.publish('stock-sim-portfolio-active', 'true');
+    setActivated(btnActivatePortfolio, 'PORTFOLIO ACTIVE');
+});
+// Sync button state if controller page refreshes mid-session
+comms.subscribe('stock-sim-chart-active', (val) => {
+    if (val === 'true')
+        setActivated(btnActivateChart, 'CHART ACTIVE');
+});
+comms.subscribe('stock-sim-portfolio-active', (val) => {
+    if (val === 'true')
+        setActivated(btnActivatePortfolio, 'PORTFOLIO ACTIVE');
+});
 // ── Connection status + client count ──────────────────────────────────────
 comms.subscribe('__clients__', (payload) => {
     const count = parseInt(payload, 10);
@@ -160,7 +193,10 @@ btnReset.addEventListener('click', () => {
     comms.publish('stock-sim-reset', JSON.stringify({ at: Date.now() }));
     // Wipe stale values from the local cache so poll() doesn't immediately
     // re-apply old data before the reloaded pages publish fresh state.
-    comms.clearTopics('stock-sim-price', 'stock-sim-portfolio', 'stock-sim-regime');
+    comms.clearTopics('stock-sim-price', 'stock-sim-portfolio', 'stock-sim-regime', 'stock-sim-chart-active', 'stock-sim-portfolio-active');
+    comms.publish('stock-sim-chart-active', 'false');
+    comms.publish('stock-sim-portfolio-active', 'false');
+    resetActivateButtons();
     // Reset all controller state variables
     currentPrice = 0;
     startPrice = 0;

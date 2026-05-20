@@ -105,6 +105,8 @@ wss.on('connection', (ws) => {
             delete lastValue['stock-sim-price'];
             delete lastValue['stock-sim-portfolio'];
             delete lastValue['stock-sim-regime'];
+            delete lastValue['stock-sim-chart-active'];
+            delete lastValue['stock-sim-portfolio-active'];
         }
 
         // Relay to all OTHER connected clients (sender already knows the value)

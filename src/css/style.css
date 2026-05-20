@@ -76,3 +76,47 @@ body {
     height: 100%;
     display: block;
 }
+
+/* ── Landing overlay ─────────────────────────────────── */
+
+.landing-overlay {
+    position: fixed;
+    inset: 0;
+    background: #131722;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.4s ease;
+}
+
+.landing-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.landing-content {
+    text-align: center;
+}
+
+.landing-title {
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #d1d4dc;
+    margin-bottom: 20px;
+}
+
+.landing-subtitle {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #5d6673;
+    animation: landing-pulse 2s ease-in-out infinite;
+}
+
+@keyframes landing-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}

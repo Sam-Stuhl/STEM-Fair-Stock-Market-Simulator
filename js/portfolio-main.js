@@ -1,10 +1,22 @@
 // Portfolio view logic — receives price updates via WebSocket / localStorage from the chart window
 import { comms } from './comms.js';
-// When embedded as a preview iframe in the admin page, run read-only:
-// sync displayed state from the published snapshots instead of own state.
 const isPreview = window.self !== window.top;
-if (!isPreview)
-    comms.connect();
+comms.connect();
+// Show landing screen until controller activates this page.
+// In preview mode skip the gate — it's always visible in the controller iframe.
+if (!isPreview) {
+    let portfolioStarted = false;
+    comms.subscribe('stock-sim-portfolio-active', (val) => {
+        if (val !== 'true' || portfolioStarted)
+            return;
+        portfolioStarted = true;
+        const overlay = document.getElementById('landing-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+        }
+    });
+}
 const STARTING_CASH = 10000;
 // ── State ──────────────────────────────────────────────────────────────────
 let cash = STARTING_CASH;

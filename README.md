@@ -173,7 +173,7 @@ Presenter Action / Auto Update
    - For the portfolio view: Open `src/portfolio.html` in your browser
    - Or serve with a local server:
      ```bash
-     npx http-server src/
+     npx http-server
      ```
 
 ### Build Output

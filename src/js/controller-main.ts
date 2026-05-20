@@ -36,6 +36,9 @@ const btnNormal = document.getElementById('btn-normal') as HTMLButtonElement;
 const btnBull   = document.getElementById('btn-bull')   as HTMLButtonElement;
 const btnBear   = document.getElementById('btn-bear')   as HTMLButtonElement;
 
+const btnActivateChart     = document.getElementById('btn-activate-chart')     as HTMLButtonElement;
+const btnActivatePortfolio = document.getElementById('btn-activate-portfolio') as HTMLButtonElement;
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function fmtMoney(n: number): string {
@@ -177,6 +180,42 @@ function scaleChartPreview(): void {
 window.addEventListener('resize', scaleChartPreview);
 setTimeout(scaleChartPreview, 0);
 
+// ── Screen activation ──────────────────────────────────────────────────────
+
+function setActivated(btn: HTMLButtonElement, label: string): void {
+    btn.classList.add('active');
+    btn.textContent = label + ' ✓';
+    btn.disabled = true;
+}
+
+function resetActivateButtons(): void {
+    btnActivateChart.classList.remove('active');
+    btnActivateChart.textContent = 'ACTIVATE CHART';
+    btnActivateChart.disabled = false;
+
+    btnActivatePortfolio.classList.remove('active');
+    btnActivatePortfolio.textContent = 'ACTIVATE PORTFOLIO';
+    btnActivatePortfolio.disabled = false;
+}
+
+btnActivateChart.addEventListener('click', () => {
+    comms.publish('stock-sim-chart-active', 'true');
+    setActivated(btnActivateChart, 'CHART ACTIVE');
+});
+
+btnActivatePortfolio.addEventListener('click', () => {
+    comms.publish('stock-sim-portfolio-active', 'true');
+    setActivated(btnActivatePortfolio, 'PORTFOLIO ACTIVE');
+});
+
+// Sync button state if controller page refreshes mid-session
+comms.subscribe('stock-sim-chart-active', (val) => {
+    if (val === 'true') setActivated(btnActivateChart, 'CHART ACTIVE');
+});
+comms.subscribe('stock-sim-portfolio-active', (val) => {
+    if (val === 'true') setActivated(btnActivatePortfolio, 'PORTFOLIO ACTIVE');
+});
+
 // ── Connection status + client count ──────────────────────────────────────
 
 comms.subscribe('__clients__', (payload) => {
@@ -194,7 +233,10 @@ btnReset.addEventListener('click', () => {
 
     // Wipe stale values from the local cache so poll() doesn't immediately
     // re-apply old data before the reloaded pages publish fresh state.
-    comms.clearTopics('stock-sim-price', 'stock-sim-portfolio', 'stock-sim-regime');
+    comms.clearTopics('stock-sim-price', 'stock-sim-portfolio', 'stock-sim-regime', 'stock-sim-chart-active', 'stock-sim-portfolio-active');
+    comms.publish('stock-sim-chart-active', 'false');
+    comms.publish('stock-sim-portfolio-active', 'false');
+    resetActivateButtons();
 
     // Reset all controller state variables
     currentPrice  = 0;
