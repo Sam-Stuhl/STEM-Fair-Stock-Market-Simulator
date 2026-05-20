@@ -17,17 +17,20 @@ if (!isPreview) {
         }
     });
 }
-const STARTING_CASH = 10000;
+const STARTING_CASH = 50;
+const STARTING_SHARES = 10;
+const STARTING_PRICE = 10;
+const STARTING_WORTH = STARTING_CASH + STARTING_SHARES * STARTING_PRICE; // $150
 // ── State ──────────────────────────────────────────────────────────────────
 let cash = STARTING_CASH;
-let sharesOwned = 0;
-let currentPrice = 0;
+let sharesOwned = STARTING_SHARES;
+let currentPrice = STARTING_PRICE;
 let priceReceived = false;
 const transactions = [];
 // ── Derived values ─────────────────────────────────────────────────────────
 function marketValue() { return sharesOwned * currentPrice; }
 function totalValue() { return cash + marketValue(); }
-function pnl() { return totalValue() - STARTING_CASH; }
+function pnl() { return totalValue() - STARTING_WORTH; }
 // ── DOM refs ───────────────────────────────────────────────────────────────
 const elPrice = document.getElementById('portfolio-price');
 const elStatus = document.getElementById('price-status');

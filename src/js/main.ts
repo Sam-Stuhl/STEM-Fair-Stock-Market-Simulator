@@ -8,8 +8,8 @@ import { comms } from './comms.js';
 const isPreview = window.self !== window.top;
 comms.connect();
 
-const SYMBOL = "UOPP";
-const PRICE_INTERVAL = 5;
+const SYMBOL = "WILD";
+const PRICE_INTERVAL = 1;
 const DATE_INTERVAL = 10;
 
 let animator: ChartAnimator | null = null;

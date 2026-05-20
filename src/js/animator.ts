@@ -32,7 +32,7 @@ export class ChartAnimator {
 
         if (this.candles.length === 0) {
             // Fresh start — seed the very first candle from a fixed starting price
-            this.candles.push(generateCandle(100, '2025-01-02'));
+            this.candles.push(generateCandle(10, '2025-01-02'));
             this.currentCandleIndex = 0;
         } else {
             // Continue from end of any pre-loaded data
