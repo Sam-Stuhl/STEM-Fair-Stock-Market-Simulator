@@ -85,6 +85,7 @@ setInterval(() => {
 comms.subscribe('stock-sim-reset', () => window.location.reload());
 if (isPreview) {
     // Preview mode: mirror the real chart — no landing screen, no animator.
+    document.getElementById('landing-overlay')?.remove();
     comms.subscribe('stock-sim-candles', (raw) => {
         try {
             const candles = JSON.parse(raw);
