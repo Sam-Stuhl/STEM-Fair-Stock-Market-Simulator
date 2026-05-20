@@ -6,7 +6,6 @@ import { comms } from './comms.js';
 const isPreview = window.self !== window.top;
 comms.connect();
 const SYMBOL = "WILD";
-const PRICE_INTERVAL = 1;
 const DATE_INTERVAL = 10;
 let animator = null;
 let viewport = null;
@@ -18,13 +17,13 @@ function initializeChart() {
         maxVisibleCandles: 150
     });
     // No historical data — animator seeds the first candle from scratch
-    animator = new ChartAnimator([], PRICE_INTERVAL, DATE_INTERVAL);
+    animator = new ChartAnimator([], DATE_INTERVAL);
     animator.setViewport(viewport);
     const canvas = document.getElementById('chartCanvas');
     if (canvas && viewport) {
         new InteractionManager(canvas, viewport, () => {
             if (animator && viewport) {
-                drawChart(animator.getVisibleCandles(), PRICE_INTERVAL, DATE_INTERVAL, viewport);
+                drawChart(animator.getVisibleCandles(), DATE_INTERVAL, viewport);
             }
         });
     }
@@ -50,7 +49,7 @@ function initializeChart() {
 }
 function redrawChart() {
     if (animator && viewport) {
-        drawChart(animator.getVisibleCandles(), PRICE_INTERVAL, DATE_INTERVAL, viewport);
+        drawChart(animator.getVisibleCandles(), DATE_INTERVAL, viewport);
     }
 }
 window.addEventListener('resize', redrawChart);
@@ -89,7 +88,7 @@ if (isPreview) {
     comms.subscribe('stock-sim-candles', (raw) => {
         try {
             const candles = JSON.parse(raw);
-            drawChart(candles, PRICE_INTERVAL, DATE_INTERVAL);
+            drawChart(candles, DATE_INTERVAL);
         }
         catch { /* ignore malformed */ }
     });

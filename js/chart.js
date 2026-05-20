@@ -67,7 +67,20 @@ export function detectCanvasRegion(canvas, mouseX, mouseY) {
     return null;
 }
 // Draw price labels and horizontal grid lines on canvas
-function drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice) {
+// Choose a visually clean interval given a visible price range (targets ~5 gridlines).
+function niceInterval(range) {
+    const raw = range / 5;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+    const normalized = raw / magnitude;
+    const nice = normalized < 1.5 ? 1 : normalized < 3.5 ? 2 : normalized < 7.5 ? 5 : 10;
+    return nice * magnitude;
+}
+// Format a price label with the right decimal places for the current interval.
+function formatPrice(price, interval) {
+    const decimals = interval >= 1 ? 0 : interval >= 0.1 ? 1 : 2;
+    return '$' + price.toFixed(decimals);
+}
+function drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice, interval) {
     const { priceAxis, chartArea } = regions;
     ctx.save();
     ctx.fillStyle = LABEL_COLOR;
@@ -80,7 +93,7 @@ function drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice) 
             return;
         // Calculate Y position within chart area
         const yInChart = getPixelY(maxPrice, minPrice, price, chartArea.height);
-        // Draw horizontal grid lines across chart area 
+        // Draw horizontal grid lines across chart area
         ctx.strokeStyle = GRID_COLOR;
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -88,10 +101,9 @@ function drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice) 
         ctx.lineTo(chartArea.x + chartArea.width, yInChart);
         ctx.stroke();
         // Draw price label in price axis region
-        const labelText = `$${Math.round(price)}`;
         const labelX = priceAxis.x + LABEL_PADDING;
         const labelY = yInChart;
-        ctx.fillText(labelText, labelX, labelY);
+        ctx.fillText(formatPrice(price, interval), labelX, labelY);
     });
     ctx.restore();
 }
@@ -150,7 +162,7 @@ export async function loadCandles(symbol) {
         throw error;
     }
 }
-export function drawChart(candles, priceInterval, dateInterval, viewport) {
+export function drawChart(candles, dateInterval, viewport) {
     const canvas = document.getElementById('chartCanvas');
     const ctx = canvas.getContext('2d');
     const regions = getCanvasRegions(canvas);
@@ -172,9 +184,10 @@ export function drawChart(candles, priceInterval, dateInterval, viewport) {
         return;
     }
     const candleWidth = regions.chartArea.width / visibleCandles.length;
+    const priceInterval = niceInterval(maxPrice - minPrice);
     const priceLabels = _getPriceLabels(visibleCandles, priceInterval, minPrice, maxPrice);
     const dateLabels = _getDateLabels(visibleCandles, dateInterval);
-    drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice);
+    drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice, priceInterval);
     drawDateLabelsOnCanvas(ctx, regions, dateLabels, visibleCandles.length);
     // Draw separator lines between chart and axes
     ctx.strokeStyle = AXIS_BORDER_COLOR;

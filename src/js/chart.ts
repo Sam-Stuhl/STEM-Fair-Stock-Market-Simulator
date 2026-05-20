@@ -92,12 +92,28 @@ export function detectCanvasRegion(
 }
 
 // Draw price labels and horizontal grid lines on canvas
+// Choose a visually clean interval given a visible price range (targets ~5 gridlines).
+function niceInterval(range: number): number {
+    const raw = range / 5;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+    const normalized = raw / magnitude;
+    const nice = normalized < 1.5 ? 1 : normalized < 3.5 ? 2 : normalized < 7.5 ? 5 : 10;
+    return nice * magnitude;
+}
+
+// Format a price label with the right decimal places for the current interval.
+function formatPrice(price: number, interval: number): string {
+    const decimals = interval >= 1 ? 0 : interval >= 0.1 ? 1 : 2;
+    return '$' + price.toFixed(decimals);
+}
+
 function drawPriceLabelsOnCanvas(
     ctx: CanvasRenderingContext2D,
     regions: CanvasRegions,
     priceLabels: number[],
     minPrice: number,
-    maxPrice: number
+    maxPrice: number,
+    interval: number
 ): void {
     const {priceAxis, chartArea } = regions;
 
@@ -113,8 +129,8 @@ function drawPriceLabelsOnCanvas(
 
         // Calculate Y position within chart area
         const yInChart = getPixelY(maxPrice, minPrice, price, chartArea.height);
-        
-        // Draw horizontal grid lines across chart area 
+
+        // Draw horizontal grid lines across chart area
         ctx.strokeStyle = GRID_COLOR;
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -123,10 +139,9 @@ function drawPriceLabelsOnCanvas(
         ctx.stroke();
 
         // Draw price label in price axis region
-        const labelText = `$${Math.round(price)}`;
         const labelX = priceAxis.x + LABEL_PADDING;
         const labelY = yInChart;
-        ctx.fillText(labelText, labelX, labelY);
+        ctx.fillText(formatPrice(price, interval), labelX, labelY);
     });
 
     ctx.restore();
@@ -207,8 +222,7 @@ export async function loadCandles(symbol: string) : Promise<Candle[]> {
 } 
 
 export function drawChart(
-    candles: Candle[], 
-    priceInterval: number, 
+    candles: Candle[],
     dateInterval: number,
     viewport?: ViewportManager
 ) : void {
@@ -241,10 +255,11 @@ export function drawChart(
 
     const candleWidth = regions.chartArea.width / visibleCandles.length;
 
+    const priceInterval = niceInterval(maxPrice - minPrice);
     const priceLabels = _getPriceLabels(visibleCandles, priceInterval, minPrice, maxPrice);
     const dateLabels = _getDateLabels(visibleCandles, dateInterval);
 
-    drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice);
+    drawPriceLabelsOnCanvas(ctx, regions, priceLabels, minPrice, maxPrice, priceInterval);
     drawDateLabelsOnCanvas(ctx, regions, dateLabels, visibleCandles.length);
 
     // Draw separator lines between chart and axes

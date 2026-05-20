@@ -9,7 +9,6 @@ const isPreview = window.self !== window.top;
 comms.connect();
 
 const SYMBOL = "WILD";
-const PRICE_INTERVAL = 1;
 const DATE_INTERVAL = 10;
 
 let animator: ChartAnimator | null = null;
@@ -24,14 +23,14 @@ function initializeChart(): void {
     });
 
     // No historical data — animator seeds the first candle from scratch
-    animator = new ChartAnimator([], PRICE_INTERVAL, DATE_INTERVAL);
+    animator = new ChartAnimator([], DATE_INTERVAL);
     animator.setViewport(viewport);
 
     const canvas = document.getElementById('chartCanvas') as HTMLCanvasElement;
     if (canvas && viewport) {
         new InteractionManager(canvas, viewport, () => {
             if (animator && viewport) {
-                drawChart(animator.getVisibleCandles(), PRICE_INTERVAL, DATE_INTERVAL, viewport);
+                drawChart(animator.getVisibleCandles(), DATE_INTERVAL, viewport);
             }
         });
     }
@@ -59,7 +58,7 @@ function initializeChart(): void {
 
 function redrawChart(): void {
     if (animator && viewport) {
-        drawChart(animator.getVisibleCandles(), PRICE_INTERVAL, DATE_INTERVAL, viewport);
+        drawChart(animator.getVisibleCandles(), DATE_INTERVAL, viewport);
     }
 }
 
@@ -104,7 +103,7 @@ if (isPreview) {
     comms.subscribe('stock-sim-candles', (raw) => {
         try {
             const candles = JSON.parse(raw);
-            drawChart(candles, PRICE_INTERVAL, DATE_INTERVAL);
+            drawChart(candles, DATE_INTERVAL);
         } catch { /* ignore malformed */ }
     });
 

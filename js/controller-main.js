@@ -188,8 +188,6 @@ comms.subscribe('__clients__', (payload) => {
 });
 // ── Reset simulation ───────────────────────────────────────────────────────
 btnReset.addEventListener('click', () => {
-    if (!confirm('Reset the simulation? The chart and portfolio will reload.'))
-        return;
     comms.publish('stock-sim-reset', JSON.stringify({ at: Date.now() }));
     // Wipe stale values from the local cache so poll() doesn't immediately
     // re-apply old data before the reloaded pages publish fresh state.

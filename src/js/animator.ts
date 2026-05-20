@@ -16,7 +16,6 @@ export class ChartAnimator {
     private lastTimestamp: number = 0;
 
     // Rendering configuration
-    private priceInterval: number;
     private dateInterval: number;
 
     // Viewport reference
@@ -25,9 +24,8 @@ export class ChartAnimator {
     // Optional callback fired each time the displayed price changes
     public onPriceUpdate: ((price: number) => void) | null = null;
 
-    constructor(candles: Candle[], priceInterval: number, dateInterval: number) {
+    constructor(candles: Candle[], dateInterval: number) {
         this.candles = candles;
-        this.priceInterval = priceInterval;
         this.dateInterval = dateInterval;
 
         if (this.candles.length === 0) {
@@ -91,7 +89,7 @@ export class ChartAnimator {
         this.candleProgress += progressIncrement;
 
         const visibleCandles = this.getVisibleCandles();
-        drawChart(visibleCandles, this.priceInterval, this.dateInterval, this.viewport ?? undefined);
+        drawChart(visibleCandles, this.dateInterval, this.viewport ?? undefined);
 
         if (visibleCandles.length > 0) {
             this.updateHeaderPrice(visibleCandles[visibleCandles.length - 1].open, visibleCandles[visibleCandles.length - 1].close);

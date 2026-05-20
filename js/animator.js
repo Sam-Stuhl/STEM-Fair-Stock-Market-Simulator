@@ -1,7 +1,7 @@
 import { drawChart } from './chart.js';
 import { generateCandle, nextBusinessDate, setRegime } from './priceGenerator.js';
 export class ChartAnimator {
-    constructor(candles, priceInterval, dateInterval) {
+    constructor(candles, dateInterval) {
         this.currentCandleIndex = 0;
         this.candleProgress = 0;
         this.isPlaying = false;
@@ -14,7 +14,6 @@ export class ChartAnimator {
         // Optional callback fired each time the displayed price changes
         this.onPriceUpdate = null;
         this.candles = candles;
-        this.priceInterval = priceInterval;
         this.dateInterval = dateInterval;
         if (this.candles.length === 0) {
             // Fresh start — seed the very first candle from a fixed starting price
@@ -68,7 +67,7 @@ export class ChartAnimator {
         const progressIncrement = (deltaTime / this.millisecondsPerCandle) * this.animationSpeed;
         this.candleProgress += progressIncrement;
         const visibleCandles = this.getVisibleCandles();
-        drawChart(visibleCandles, this.priceInterval, this.dateInterval, this.viewport ?? undefined);
+        drawChart(visibleCandles, this.dateInterval, this.viewport ?? undefined);
         if (visibleCandles.length > 0) {
             this.updateHeaderPrice(visibleCandles[visibleCandles.length - 1].open, visibleCandles[visibleCandles.length - 1].close);
         }
