@@ -1,0 +1,28 @@
+name: luma
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  call-luma:
+    if: >
+      github.event.sender.type != 'Bot'
+      && (
+        (github.event_name == 'issues' && contains(github.event.issue.body, '@luma'))
+        ||
+        (github.event_name == 'issue_comment'
+         && !github.event.issue.pull_request
+         && contains(github.event.comment.body, '@luma'))
+      )
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    uses: Sam-Stuhl/dslrbooth-cloud/.github/workflows/luma-callable.yml@main
+    with:
+      caller_repo: ${{ github.repository }}
+      issue_number: ${{ github.event.issue.number }}
+    secrets: inherit
